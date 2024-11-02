@@ -8,6 +8,17 @@ This is a project to support different types of StreamDeck focused devices to de
 - [ ] StreamDeck Mini
 - [ ] StreamDeck XL
 
+## Roadmap
+
+- [ ] Implement StreamDeck Plus
+  - [x] Read inputs:
+    - [x] Buttons
+    - [x] Knobs
+    - [ ] Touchscreen
+  - [ ] Write outputs:
+    - [ ] Buttons - Icons, Texts
+    - [ ] Touchscreen - Image
+
 ## Architecture
 
 Depending on the device, you will have contracts and modules to implement and use it.
@@ -30,56 +41,56 @@ If you want to implement a new device, you should follow the steps below:
 package devices
 
 import (
-    "github.com/karalabe/hid"
+  "github.com/karalabe/hid"
 )
 
 type NewDevice struct {
-    device *hid.Device
-    currentBuffer []byte
+  device *hid.Device
+  currentBuffer []byte
 }
 
 func NewNewDevice(device *hid.Device) *NewDevice {
-    return &NewDevice{device: device}
+  return &NewDevice{device: device}
 }
 
 // Implement DeckDevice, ButtonContract, KnobContract interfaces
 func (d *NewDevice) DeviceName() string {
-    return "New Device"
+  return "New Device"
 }
 
 func (d *NewDevice) ReadInput() ([]byte, error) {
-    buffer := make([]byte, 64)
-    _, err := d.device.Read(buffer)
-    if err != nil {
-        return nil, err
-    }
-    d.currentBuffer = buffer
-    return buffer, nil
+  buffer := make([]byte, 64)
+  _, err := d.device.Read(buffer)
+  if err != nil {
+    return nil, err
+  }
+  d.currentBuffer = buffer
+  return buffer, nil
 }
 
 func (d *NewDevice) IsPressed() bool {
-    // Implement button press logic
-    return false
+  // Implement button press logic
+  return false
 }
 
 func (d *NewDevice) ButtonPressed() ButtonKey {
-    // Implement button press logic
-    return ButtonReleased
+  // Implement button press logic
+  return ButtonReleased
 }
 
 func (d *NewDevice) KnobEnabled() bool {
-    // Implement knob enabled logic
-    return false
+  // Implement knob enabled logic
+  return false
 }
 
 func (d *NewDevice) KnobAction() (KnobAction, KnobIndex, int, error) {
-    // Implement knob action logic
-    return KnobClockWise, 0, 0, nil
+  // Implement knob action logic
+  return KnobClockWise, 0, 0, nil
 }
 
 func (d *NewDevice) KnobInteractedIndex() int {
-    // Implement knob interacted index logic
-    return 0
+  // Implement knob interacted index logic
+  return 0
 }
 
 ```
