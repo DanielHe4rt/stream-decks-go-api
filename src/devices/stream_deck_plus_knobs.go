@@ -41,9 +41,9 @@ var knobPool = sync.Pool{
 // [1 3 5 0 1 255] - CounterClockwise
 // [1 3 5 0 0 1] - Pressed
 // [1 3 5 0 0 0] - Released
-func (s *StreamDeckPlus) KnobAction() (KnobAction, KnobIndex, int, error) {
+func (s *StreamDeckPlus) KnobAction() (KnobResponse, error) {
 	if !s.hasKnobs {
-		return 0, 0, 0, fmt.Errorf("Knobs not enabled")
+		return KnobResponse{Action: 0, Index: 0, Value: 0}, fmt.Errorf("Knobs not enabled")
 	}
 
 	// Check if the knob is pressed
@@ -56,11 +56,16 @@ func (s *StreamDeckPlus) KnobAction() (KnobAction, KnobIndex, int, error) {
 		// Only put into the pool if the knob was pressed (index >= 0)
 		if knobPressedIndex != -1 {
 			// Use pool object and reset its value
+
 			knobIndex := knobPool.Get().(*KnobIndex)
 			*knobIndex = KnobIndex(knobPressedIndex)
 			defer knobPool.Put(knobIndex) // Return it to the pool after use
 
-			return KnobPressed, *knobIndex, 0, nil
+			return KnobResponse{
+				Action: KnobPressed,
+				Index:  *knobIndex,
+				Value:  0,
+			}, nil
 		}
 
 		// TODO: knob released should return the latest value
@@ -69,7 +74,11 @@ func (s *StreamDeckPlus) KnobAction() (KnobAction, KnobIndex, int, error) {
 		*knobIndex = KnobIndex(knobPressedIndex)
 		defer knobPool.Put(knobIndex) // Put it back in the pool
 
-		return KnobReleased, *knobIndex, 0, nil
+		return KnobResponse{
+			Action: KnobReleased,
+			Index:  *knobIndex,
+			Value:  0,
+		}, nil
 	}
 
 	// Check if the knob is rotated
@@ -80,21 +89,29 @@ func (s *StreamDeckPlus) KnobAction() (KnobAction, KnobIndex, int, error) {
 			if knob != 0 {
 				if knob >= 1 && knob <= 50 {
 					// Knob value = 1 to 50
-					return KnobClockWise, KnobIndex(i), int(knob), nil
+					return KnobResponse{
+						Action: KnobClockWise,
+						Index:  KnobIndex(i),
+						Value:  int(knob),
+					}, nil
 				}
 				if knob >= 200 {
 					// knob value = 256 - knobvalue
 					knobValue := 256 - int(knob)
 
-					return KnobCounterClockWise, KnobIndex(i), knobValue, nil
+					return KnobResponse{
+						Action: KnobCounterClockWise,
+						Index:  KnobIndex(i),
+						Value:  knobValue,
+					}, nil
 				}
 			}
 		}
 
-		return 0, 0, 0, fmt.Errorf("Knob action not implemented")
+		return KnobResponse{Action: 0, Index: 0, Value: 0}, fmt.Errorf("knob action not implemented")
 	}
 
-	return 0, 0, 0, fmt.Errorf("Knob action not implemented")
+	return KnobResponse{Action: 0, Index: 0, Value: 0}, fmt.Errorf("knob action not implemented")
 }
 
 func (s *StreamDeckPlus) KnobInteractedIndex() int {

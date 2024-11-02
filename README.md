@@ -14,7 +14,7 @@ This is a project to support different types of StreamDeck focused devices to de
   - [x] Read inputs:
     - [x] Buttons
     - [x] Knobs
-    - [ ] Touchscreen
+    - [x] Touchscreen
   - [ ] Write outputs:
     - [ ] Buttons - Icons, Texts
     - [ ] Touchscreen - Image
@@ -33,6 +33,8 @@ Under the contracts we have:
   This will be the most common among StreamDecks.
 - `knobs_contract.go`: This contract is responsible for the knobs that the device will have. This is a specific contract
   for the StreamDeck+ and other similar devices that have knobs.
+- `display_contract.go`: This contract is responsible for the display that the device will have. This is a specific
+  contract for the StreamDeck+ and other similar devices that have a display.
 
 If you want to implement a new device, you should follow the steps below:
 

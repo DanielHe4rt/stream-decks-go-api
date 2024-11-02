@@ -22,8 +22,14 @@ func (k KnobAction) String() string {
 	return KnobActions[k]
 }
 
+type KnobResponse struct {
+	Action KnobAction
+	Index  KnobIndex
+	Value  int
+}
+
 type KnobContract interface {
 	KnobEnabled() bool
-	KnobAction() (KnobAction, KnobIndex, int, error)
+	KnobAction() (KnobResponse, error)
 	KnobInteractedIndex() int
 }

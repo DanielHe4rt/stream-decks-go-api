@@ -16,7 +16,7 @@ const (
 func listenForKeyStates(device devices.DeckDevice) {
 
 	for {
-		buf, err := device.ReadInput()
+		_, err := device.ReadInput()
 
 		if err != nil {
 			fmt.Println("Failed to read from device:", err)
@@ -33,16 +33,34 @@ func listenForKeyStates(device devices.DeckDevice) {
 			fmt.Println(device.IsPressed())
 		} else if trigger == devices.KnobTrigger {
 			fmt.Println("----------------")
-			fmt.Println(buf)
 			fmt.Println("Knob Enabled: ", device.KnobEnabled())
 
-			knobAction, knobIndex, knobValue, err := device.KnobAction()
+			knobResponse, err := device.KnobAction()
 			if err != nil {
 				fmt.Println("Failed to get knob action:", err)
 			}
-			fmt.Println("Knob Action: ", knobAction)
-			fmt.Println("Knob Index: ", knobIndex)
-			fmt.Println("Knob Value: ", knobValue)
+			fmt.Println("Knob Action: ", knobResponse.Action)
+			fmt.Println("Knob Index: ", knobResponse.Index)
+			fmt.Println("Knob Value: ", knobResponse.Value)
+		} else if trigger == devices.TouchTrigger {
+			if !device.DisplayEnabled() {
+				fmt.Println("Touch Enabled")
+			}
+			response, err := device.DisplayAction()
+			if err != nil {
+				fmt.Println(err)
+			}
+
+			fmt.Println("Action: ", response.Action)
+			for _, interaction := range response.Interactions {
+				fmt.Printf(" --------------------\n")
+				fmt.Printf(" Width: %d\n", interaction.Width)
+				fmt.Printf(" Height: %d\n", interaction.Height)
+				fmt.Printf(" Index: %d\n", interaction.Index)
+				fmt.Printf(" Real Width: %d\n", interaction.RealWidth)
+				fmt.Printf(" State: %v\n", interaction.State)
+				fmt.Printf(" --------------------\n")
+			}
 		}
 
 	}

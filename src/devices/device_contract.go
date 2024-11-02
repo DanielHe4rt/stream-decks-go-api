@@ -21,6 +21,7 @@ type DeckDevice interface {
 	DeckBuffer
 	ButtonContract
 	KnobContract
+	DisplayContract
 }
 
 func GetDevice(device *hid.Device) (DeckDevice, error) {
