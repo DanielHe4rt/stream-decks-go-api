@@ -13,10 +13,12 @@ const (
 
 type DeckBuffer interface {
 	ReadInput() ([]byte, error)
+	Write([]byte) error
 }
 
 type DeckDevice interface {
 	DeviceName() string
+	SetBrightness(brightness int) error
 	TriggerContract
 	DeckBuffer
 	ButtonContract
@@ -24,8 +26,8 @@ type DeckDevice interface {
 	DisplayContract
 }
 
-func GetDevice(device *hid.Device) (DeckDevice, error) {
-	switch device.ProductID {
+func GetDevice(productId uint16, device hid.Device) (DeckDevice, error) {
+	switch productId {
 	case StreamDeckPlusDevice:
 		return NewStreamDeckPlus(device), nil
 	default:

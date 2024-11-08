@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/andreykaipov/goobs"
 	"github.com/danielhe4rt/go-fodase/src/devices"
 	"github.com/karalabe/hid"
 	"log"
@@ -68,10 +69,10 @@ func listenForKeyStates(device devices.DeckDevice) {
 
 func main() {
 
-	connectedDevices := hid.Enumerate(ElgatoVendor, devices.StreamDeckPlusDevice)
+	connectedDevices, err := hid.Enumerate(ElgatoVendor, devices.StreamDeckPlusDevice)
 
-	if len(connectedDevices) == 0 {
-		fmt.Println("Stream Deck not found.")
+	if err != nil {
+		fmt.Printf("Stream Deck not found: %v \n", err)
 		return
 	}
 	deviceInfo := connectedDevices[0]
@@ -82,13 +83,29 @@ func main() {
 		return
 	}
 
-	device, err := devices.GetDevice(hardwareDeviceBuffer)
+	device, err := devices.GetDevice(deviceInfo.ProductID, hardwareDeviceBuffer)
 	if err != nil {
 		// Device Not Supported :x
 		log.Fatal(err)
 	}
-
 	defer hardwareDeviceBuffer.Close()
+
+	client, err := goobs.New("localhost:1337", goobs.WithPassword("goodpassword"))
+	if err != nil {
+		panic(err)
+	}
+	defer client.Disconnect()
+
+	version, err := client.General.GetVersion()
+	if err != nil {
+		panic(err)
+	}
+
+	client.Filters.
+		fmt.Printf("OBS Studio version: %s\n", version.ObsVersion)
+	fmt.Printf("Server protocol version: %s\n", version.ObsWebSocketVersion)
+	fmt.Printf("Client protocol version: %s\n", goobs.ProtocolVersion)
+	fmt.Printf("Client library version: %s\n", goobs.LibraryVersion)
 
 	fmt.Println("Connected to Stream Deck.")
 
